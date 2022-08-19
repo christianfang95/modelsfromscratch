@@ -8,6 +8,7 @@ Created on Fri Aug 19 08:35:35 2022
 
 import numpy as np
 import pandas as pd
+from scipy.stats import f
 
 class OLSregression(object):
 
@@ -65,9 +66,46 @@ class OLSregression(object):
         sst = np.sum(np.square(Y-mean))
         #Calculate the r_squared: 1 minus rss/sst
         r_squared = 1 - (rss/sst)
+        return r_squared
     
         return r_squared
-
+    def F(self, Y, pred, coefficients):
+        #calculate p
+        p=len(coefficients)
+        #calculate n
+        n=len(pred)
+        #calculate mean
+        mean=np.mean(Y)
+        msm=(np.sum(np.square(pred-mean)))/(p-1)
+        mse=(np.sum(np.square(Y-pred)))/(n-p)
+        fval=msm/mse
+        #Compute p-value of F using f.sf from scipy
+        p_value = f.sf(fval, (p-1), (n-p))
+        return fval, p_value
+    def modelinfo(self, Y, pred, coefficients):
+        #Calculate R squared
+        #Caculate the residual sum of squares: the difference between observed
+        #and predicted values, squared
+        rss=np.sum(np.square((Y-pred)))
+        #Calculate the mean of Y
+        mean=np.mean(Y)
+        #Calculate the sum of squares total: sum of the squared differences between Y and the mean of Y
+        sst = np.sum(np.square(Y-mean))
+        #Calculate the r_squared: 1 minus rss/sst
+        r_squared = 1 - (rss/sst)
+        #Calculate F
+        #calculate p
+        p=len(coefficients)
+        #calculate n
+        n=len(pred)
+        #calculate mean
+        msm=(np.sum(np.square(pred-mean)))/(p-1)
+        mse=(np.sum(np.square(Y-pred)))/(n-p)
+        fval=msm/mse
+        #Compute p-value of F using f.sf from scipy
+        p_value = f.sf(fval, (p-1), (n-p))
+        return print("R squared: ", round(r_squared, 3), "F:", round(fval, 3), "p-value of F: ", p_value)
+    
 
 boston=pd.read_csv('https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv')
 boston.head()
@@ -80,7 +118,7 @@ model=OLSregression()
 #Fit the model
 model.fit(X, Y)
 #Look at the coefficients! So pretty!
-model.coefficients
+coefficients=model.coefficients
 #Obtain and store the predicted values
 y_preds = []
 for row in X: y_preds.append(model.predict(row))
@@ -88,6 +126,9 @@ y_preds
 #Calculate the r squared
 model.rsquared(Y, y_preds)
 
+#Calculate the f
+model.F(Y, y_preds, coefficients)
+model.modelinfo(Y, y_preds, coefficients)
 
 
 
