@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug 19 08:35:35 2022
+Created on Fri Aug 19 14:55:12 2022
 
 @author: christianfang
 """
 
-import numpy as np
-import pandas as pd
-from scipy.stats import f
+#Non-object
 
 class OLSregression(object):
 
@@ -79,6 +77,7 @@ class OLSregression(object):
             self.cilower[i]=coefficients[i]-1.96*ses[i]
         print(self.cilower)
         
+    
     def rsquared(self, Y, pred):
         """This function calculates the R squared (Coefficient of Determination)
         of the fitted model"""
@@ -131,96 +130,3 @@ class OLSregression(object):
         p_value = f.sf(fval, (p-1), (n-p))
         return print("R squared: ", round(r_squared, 3), "F:", round(fval, 3), "p-value of F: ", p_value)
     
-    def cilower(self, X, Y, pred, coefficients):
-        #Calculate parameters p and n
-        p=len(coefficients)
-        n=len(X)
-        mse=(np.sum(np.square(Y-pred)))/(n-p)
-        #Get matrix X*X
-        X_with_intercept = np.empty(shape=(n, p), dtype=float)
-        X_with_intercept[:, 0] = 1
-        X_with_intercept[:, 1:p+1] = pd.DataFrame(X).values
-        var_beta_hat = np.linalg.inv(X_with_intercept.T @ X_with_intercept) * mse 
-        for p_ in range(len(coefficients)):
-            ses=np.diag(var_beta_hat) ** 0.5
-        #lower
-        self.cilower=np.empty(shape=(p,1))
-        for i in range(p):
-            self.cilower[i]=coefficients[i]-1.96*ses[i]
-        return self.cilower
-    
-    def ciupper(self, X, Y, pred, coefficients):
-        #Calculate parameters p and n
-        p=len(coefficients)
-        n=len(X)
-        mse=(np.sum(np.square(Y-pred)))/(n-p)
-        #Get matrix X*X
-        X_with_intercept = np.empty(shape=(n, p), dtype=float)
-        X_with_intercept[:, 0] = 1
-        X_with_intercept[:, 1:p+1] = pd.DataFrame(X).values
-        var_beta_hat = np.linalg.inv(X_with_intercept.T @ X_with_intercept) * mse 
-        for p_ in range(len(coefficients)):
-            ses=np.diag(var_beta_hat) ** 0.5
-        #lower
-        self.ciupper=np.empty(shape=(p,1))
-        for i in range(p):
-            self.ciupper[i]=coefficients[i]-1.96*ses[i]
-        return self.ciupper
-    
-    
-
-boston=pd.read_csv('https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv')
-boston.head()
-
-X= boston.drop('medv', axis=1).values
-Y= boston["medv"].values
-
-#Workflow: Initialize the OLSregression model
-model=OLSregression()
-#Fit the model
-model.fit(X, Y)
-#Look at the coefficients! So pretty!
-coefficients=model.coefficients
-
-#significance
-ses=model.standarderrors(X, Y, y_preds, coefficients)
-ses
-
-
-#print confidence intervals
-cis=model.confidenceintervals
-
-#Obtain and store the predicted values
-y_preds = []
-for row in X: y_preds.append(model.predict(row))
-y_preds
-#Calculate the r squared
-model.rsquared(Y, y_preds)
-
-#Calculate the f
-model.F(Y, y_preds, coefficients)
-model.modelinfo(Y, y_preds, coefficients)
-
-model.cilower(X, Y, y_preds, coefficients)
-
-
-
-
-
-
-
-Xmat=model.X_with_intercept
-
-
-xvar=model.var_beta_hat
-xmse=model.mse
-
-np.linalg.inv(X.T @ X) * xmse 
-
-confidenceintervals=np.empty(shape=(p, 2), dtype=float)
-
-for i in range(p):
-    confidenceintervals[i] = coefficients[i]-1.96*ses[i]
-
-model.cilower
-

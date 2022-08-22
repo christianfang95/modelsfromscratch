@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Fri Aug 19 08:35:35 2022
+Created on Fri Aug 19 14:02:36 2022
 
 @author: christianfang
 """
+
 
 import numpy as np
 import pandas as pd
@@ -40,9 +41,8 @@ class OLSregression(object):
         X = self._concatenate_ones(X)
         #The following function applies the OLS method and stores the coefficients
         self.coefficients = np.linalg.inv(X.transpose().dot(X)).dot(X.transpose()).dot(y)
-        
-    def predict(self, entry):
-        """This function generates predictions from the fitted models"""
+        #
+
         #extract the intercept term from the coefficient list
         b0 = self.coefficients[0]
         #extract all other coefficients (the betas)
@@ -54,7 +54,7 @@ class OLSregression(object):
         for xi, bi in zip(entry, other_betas): prediction += (bi * xi)
         return prediction
         
-    def standarderrors(self, X, Y, pred, coefficients):
+    def standarderrors(self, X, y, pred, coefficients):
         """this function calculates standard errors"""
         #Calculate parameters p and n
         p=len(coefficients)
@@ -63,22 +63,12 @@ class OLSregression(object):
         #Get matrix X*X
         X_with_intercept = np.empty(shape=(n, p), dtype=float)
         X_with_intercept[:, 0] = 1
-        X_with_intercept[:, 1:p+1] = pd.DataFrame(X).values
-        var_beta_hat = np.linalg.inv(X_with_intercept.T @ X_with_intercept) * mse 
+        X_with_intercept[:, 1:p] = pd.DataFrame(X).values
+        var_beta_hat = np.linalg.inv(X.T @ X) * mse 
         for p_ in range(len(coefficients)):
             ses=np.diag(var_beta_hat) ** 0.5
             return ses
-        #calculate 95% CIs
-        self.ciupper=np.empty(shape=(p,1))
-        for i in range(p):
-           self.ciupper[i]=coefficients[i]+1.96*ses[i]
-        print(self.ciupper)
-        #lower
-        self.cilower=np.empty(shape=(p,1))
-        for i in range(p):
-            self.cilower[i]=coefficients[i]-1.96*ses[i]
-        print(self.cilower)
-        
+    
     def rsquared(self, Y, pred):
         """This function calculates the R squared (Coefficient of Determination)
         of the fitted model"""
@@ -131,43 +121,6 @@ class OLSregression(object):
         p_value = f.sf(fval, (p-1), (n-p))
         return print("R squared: ", round(r_squared, 3), "F:", round(fval, 3), "p-value of F: ", p_value)
     
-    def cilower(self, X, Y, pred, coefficients):
-        #Calculate parameters p and n
-        p=len(coefficients)
-        n=len(X)
-        mse=(np.sum(np.square(Y-pred)))/(n-p)
-        #Get matrix X*X
-        X_with_intercept = np.empty(shape=(n, p), dtype=float)
-        X_with_intercept[:, 0] = 1
-        X_with_intercept[:, 1:p+1] = pd.DataFrame(X).values
-        var_beta_hat = np.linalg.inv(X_with_intercept.T @ X_with_intercept) * mse 
-        for p_ in range(len(coefficients)):
-            ses=np.diag(var_beta_hat) ** 0.5
-        #lower
-        self.cilower=np.empty(shape=(p,1))
-        for i in range(p):
-            self.cilower[i]=coefficients[i]-1.96*ses[i]
-        return self.cilower
-    
-    def ciupper(self, X, Y, pred, coefficients):
-        #Calculate parameters p and n
-        p=len(coefficients)
-        n=len(X)
-        mse=(np.sum(np.square(Y-pred)))/(n-p)
-        #Get matrix X*X
-        X_with_intercept = np.empty(shape=(n, p), dtype=float)
-        X_with_intercept[:, 0] = 1
-        X_with_intercept[:, 1:p+1] = pd.DataFrame(X).values
-        var_beta_hat = np.linalg.inv(X_with_intercept.T @ X_with_intercept) * mse 
-        for p_ in range(len(coefficients)):
-            ses=np.diag(var_beta_hat) ** 0.5
-        #lower
-        self.ciupper=np.empty(shape=(p,1))
-        for i in range(p):
-            self.ciupper[i]=coefficients[i]-1.96*ses[i]
-        return self.ciupper
-    
-    
 
 boston=pd.read_csv('https://raw.githubusercontent.com/selva86/datasets/master/BostonHousing.csv')
 boston.head()
@@ -185,11 +138,6 @@ coefficients=model.coefficients
 #significance
 ses=model.standarderrors(X, Y, y_preds, coefficients)
 ses
-
-
-#print confidence intervals
-cis=model.confidenceintervals
-
 #Obtain and store the predicted values
 y_preds = []
 for row in X: y_preds.append(model.predict(row))
@@ -201,26 +149,9 @@ model.rsquared(Y, y_preds)
 model.F(Y, y_preds, coefficients)
 model.modelinfo(Y, y_preds, coefficients)
 
-model.cilower(X, Y, y_preds, coefficients)
 
 
 
 
 
-
-
-Xmat=model.X_with_intercept
-
-
-xvar=model.var_beta_hat
-xmse=model.mse
-
-np.linalg.inv(X.T @ X) * xmse 
-
-confidenceintervals=np.empty(shape=(p, 2), dtype=float)
-
-for i in range(p):
-    confidenceintervals[i] = coefficients[i]-1.96*ses[i]
-
-model.cilower
 
