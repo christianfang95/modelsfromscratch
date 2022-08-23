@@ -16,10 +16,18 @@ Hence, I decided to implement all models as comprehensively as possible.
 
 Inside the repository, you find different folders. Each folder contains two files: - a Jupyter Notebook (extension ".ipynb") that contains the code with lots and lots of explanation and math, and - a Python script (extension ".py") that contains just the annotated code.
 
+For example, in the "OLS regression" folder, you have the following two files:
+
+![](img/example1.png)
+
 I would recommend reading the Jupyter Notebooks first, and then run the Python scrips by yourself. Feel free to run the scripts with your own data!
 
 ## Acknowledgements
 
-Thanks, [Qixiang Fang](https://github.com/fqixiang) for checking my code and math! Thanks, [Jos Slabbekoorn](https://github.com/jossl95) for all your helpful and nitpicky Python tips!
+Thanks, [Qixiang Fang](https://github.com/fqixiang) for checking my code and math!
+
+Thanks, [Jos Slabbekoorn](https://github.com/jossl95) for all your helpful and nitpicky Python tips!
 
 ## License
+
+All files in this project are licensed under the [MIT license](LICENSE.txt).
