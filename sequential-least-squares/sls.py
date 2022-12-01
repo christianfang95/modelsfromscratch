@@ -15,7 +15,7 @@ def prob2logit(prob):
 
 intercept = prob2logit(0.8)
 
-def sim_data(sample_size = 100000, 
+def sim_data(sample_size = 1000, 
              beta_0 = intercept, 
              beta_1 = -3):
              x = np.random.randn(sample_size)
@@ -27,7 +27,7 @@ def sim_data(sample_size = 100000,
 
 
 #Define function for sequential least squares
-def SLS():
+def SLS(data = data):
     dat = data
     reg = smf.ols("y ~ x", data=dat).fit()
     fitted = reg.fittedvalues
@@ -60,8 +60,9 @@ def goldberger (data = data):
 
 
 #Get coefficients
-def get_coefficients():
-    res = SLS()
+def get_coefficients(data = data):
+    data = data
+    res = SLS(data = data)
     gws, WLS = goldberger()
     seq = smf.ols("y ~ x", data=res).fit().params['x']
     lpm = smf.ols("y ~ x", data=data).fit().params['x']
@@ -70,11 +71,11 @@ def get_coefficients():
                                      .summary_frame()['dy/dx']['x']
     data['lpm_fitted'] = smf.ols("y ~ x", data=data).fit().fittedvalues
     data['logit_fitted'] = smf.logit("y ~ x", data=data).fit().predict()
-    return seq, lpm, logit, gws, WLS
+    return seq, lpm, logit, gws, WLS, res, data
 
 
 #Graph results
-def plot(data = data, res = res, lpm, logit, seq, gws):
+def plot(data = data, res = res, lpm = lpm, logit = logit, seq = seq, gws = gws):
     fig, ax1 = plt.subplots(nrows = 1, ncols= 1)
     l1 = sns.lineplot(ax = ax1, x = data['x'], y = data['lpm_fitted'], label = 'LPM, AME: ' + str(round(lpm, 2)))
     l2 = sns.lineplot(ax = ax1, x = data['x'], y = data['logit_fitted'], label = 'Logistic, AME: ' + str(round(logit, 2)))
@@ -87,6 +88,10 @@ def plot(data = data, res = res, lpm, logit, seq, gws):
 #Main function
 def main():
     data = sim_data()
-    seq, lpm, logit, gws, WLS = get_coefficients()
-    plot(data = data, res = res, lpm, logit, seq, gws)
+    seq, lpm, logit, gws, WLS, res, data = get_coefficients()
+    return data, seq, lpm, logit, gws, WLS, res
+
+data, seq, lpm, logit, gws, WLS, res = main()
+
+plot(data = data, res = res, lpm = lpm, logit = logit, seq = seq, gws = gws)
 
