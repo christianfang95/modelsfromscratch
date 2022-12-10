@@ -5,15 +5,18 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 sns.set_style('darkgrid')
 
-#Set random seed
+# Set random seed
 np.random.seed(42)
 
-#Define function to simulate data
+# Define function to simulate data
+
 def prob2logit(prob):
   logit = np.log(prob / (1 - prob))
   return logit
 
+
 intercept = prob2logit(0.8)
+
 
 def sim_data(sample_size = 1000, 
              beta_0 = intercept, 
@@ -26,7 +29,8 @@ def sim_data(sample_size = 1000,
              return pd.DataFrame(d)
 
 
-#Define function for sequential least squares
+# Define function for sequential least squares
+
 def SLS(data = data):
     dat = data
     reg = smf.ols("y ~ x", data=dat).fit()
@@ -35,7 +39,9 @@ def SLS(data = data):
     if (min(fitted) > 0) & (max(fitted) < 1):
         print('No out of range predictions. OLS is equivalent to SLS.')
     while min(fitted < 0) | max(fitted > 1):
-        print('Iteration ' + str(i) + '; Remaining observations: ' + str(len(dat)) + '; Invalid Pr(Y=1): ' + str(round(100 * ((sum(fitted < 0) + sum(fitted > 1)) / len(dat)), 2)) + ' %')
+        print('Iteration ' + str(i) + '; Remaining observations: ' +
+              str(len(dat)) + '; Invalid Pr(Y=1): ' + str(round(100 * ((sum(fitted < 0) +
+                                                                        sum(fitted > 1)) / len(dat)), 2)) + ' %')
         i += 1
         dat = dat[(fitted < 1) & (fitted > 0)]
         reg = smf.ols("y ~ x", data=dat).fit()
@@ -59,7 +65,8 @@ def goldberger (data = data):
     return reg, weight
 
 
-#Get coefficients
+# Get coefficients
+
 def get_coefficients(data = data):
     data = data
     res = SLS(data = data)
@@ -74,7 +81,8 @@ def get_coefficients(data = data):
     return seq, lpm, logit, gws, WLS, res, data
 
 
-#Graph results
+# Graph results
+
 def plot(data = data, res = res, lpm = lpm, logit = logit, seq = seq, gws = gws):
     fig, ax1 = plt.subplots(nrows = 1, ncols= 1)
     l1 = sns.lineplot(ax = ax1, x = data['x'], y = data['lpm_fitted'], label = 'LPM, AME: ' + str(round(lpm, 2)))
@@ -85,7 +93,8 @@ def plot(data = data, res = res, lpm = lpm, logit = logit, seq = seq, gws = gws)
     ax1.set_ylabel('Predicted value')
     plt.show()
 
-#Main function
+# Main function
+
 def main():
     data = sim_data()
     seq, lpm, logit, gws, WLS, res, data = get_coefficients()
@@ -95,3 +104,7 @@ data, seq, lpm, logit, gws, WLS, res = main()
 
 plot(data = data, res = res, lpm = lpm, logit = logit, seq = seq, gws = gws)
 
+
+data = sim_data()
+
+seq = 
