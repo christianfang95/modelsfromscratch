@@ -126,7 +126,9 @@ for i in range(max_iter):
 
 pseudo_r2 = 1-(ll/ll_null)
 
+dict = {'Log-Likelihood': ll,
+                             'Log-Likelihood Null': ll_null,
+                             'Pseudo R-sq.': pseudo_r2}
+model_summary = pd.DataFrame(dict, index = [1])
 
-# Check with statsmodels
-reg = smf.logit(formula='y ~ x1 + x2', data = dat).fit()
-reg.summary()
+
