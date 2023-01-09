@@ -44,6 +44,7 @@ y = np.array(y)
 X_design = np.hstack([np.ones((x.shape[0], 1)), x])
 
 max_iter=100
+
 tol=1e-5
 
 #Initialize B 
